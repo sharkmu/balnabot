@@ -1,8 +1,7 @@
 #import
 
+from defer import return_value
 import discord
-from discord import user
-from discord import embeds
 from discord.ext import commands 
 from discord.ext.commands import has_permissions, MissingPermissions
 from form import Form
@@ -295,39 +294,6 @@ async def gif(ctx):
    embedcat.set_footer(text=f"Parancsot használta: {ctx.author}")
    await ctx.send(embed=embedcat)"""
 
-@bot.command()
-async def partner(ctx):
-    form = Form(ctx, "Partnership Request")
-    form.add_question(
-        "What's the invite link to your server?", # The question which it will ask
-        "invitelink", # What the form will call the result of this question
-        "invite" # The type the response should be
-    )
-    form.add_question(
-        "What's a description of your server?",
-        "description"
-    )
-    form.add_question(
-        "What's your server's advertisement?",
-        "advertisement"
-    )
-    results = await form.start()
-    embed = discord.Embed(
-        title=f"Partnership Request from {results.invitelink.guild.name}",
-        description=f"**Description:** {results.description}",
-    )
-    embed.set_thumbnail(url=results.invitelink.guild.icon_url)
-    embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
-    partnershipreq = bot.get_channel(partnership_request_channel_id_here)
-    prompt = await partnershipreq.send(embed=embed)
-    confirm = ReactConfirm(user=ctx.author, message=prompt,bot=bot)
-    accepted = await confirm.start()
-    partners = bot.get_channel(partners_channel_id_here)
-    em = discord.Embed(title=results.invitelink.guild.name, description=results.advertisement, color=0x2F3136)
-    em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
-    em.set_thumbnail(url=results.invitelink.guild.icon_url)
-    await partners.send(embed=em)
-
 @bot.command(name='invite', description='Create an invite link')
 async def invite(ctx, reason):
     invite = await ctx.guild.create_invite(reason=reason)
@@ -444,19 +410,6 @@ async def ötlet(ctx, tartalom):
     await channel.send(embed=embed)
 
 @bot.command()
-async def youtube(ctx, *, search):
-
-    query_string = urllib.parse.urlencode({
-        'search_query': search
-    })
-    htm_content = urllib.request.urlopen(
-        'http://www.youtube.com/results?' + query_string
-    )
-
-    search_results = re.findall('href=\"\\/watch\\?v=(.{11})', htm_content.read().decode())
-    await ctx.send('http://www.youtube.com/watch?v=' + search_results[0])
-
-@bot.command()
 async def szerverek(ctx):
     embed = discord.Embed(title="https://www.balnabot.ml", color=ctx.author.color, timestamp=ctx.message.created_at)
     embed.add_field(name="Szerverek: ", value=len(bot.guilds))
@@ -465,8 +418,12 @@ async def szerverek(ctx):
 
 @bot.command()
 @commands.is_owner()
-async def eval(ctx, arg, *, code):
-   await ctx.send(await eval(code))
+async def exec(ctx, *code):
+    return_value = eval(' '.join(code))
+    if return_value:
+        await ctx.send(return_value)
+    else:
+        await ctx.send("Successfull, but no return value.")
 
 @bot.command()
 async def időjárás(ctx, *, city: str):
