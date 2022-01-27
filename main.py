@@ -5,7 +5,8 @@ from discord import user
 from discord import embeds
 from discord.ext import commands 
 from discord.ext.commands import has_permissions, MissingPermissions
-#from discord.ext.forms import Form, ReactConfirm
+from form import Form
+from reactions import ReactConfirm
 import json
 import asyncio
 from discord.user import User
@@ -21,28 +22,28 @@ import time
 from random import randint
 import urllib.parse, urllib.request, re
 
-bot = commands.Bot(command_prefix="!!")
 
+prefix = "!!"
+
+bot = commands.Bot(command_prefix=prefix)
+
+bot.remove_command("help")
 
 @bot.event
 async def on_ready():
     print (f'Bejelentkeztünk: {bot.user.name}#{bot.user.discriminator} - {bot.user.id} nevében')
     await bot.change_presence(activity=discord.Game(name='Bálna BOT - BÉTA'))
 
-
-
-
 bot.owner_id = 825005165572259900
-
 api_key = "d1635ea13b4f9c870cc81fa621d2fc4b"
 base_url = "http://api.openweathermap.org/data/2.5/weather?"
-
 
 @bot.event
 async def on_command_error(ctx, err):
     if isinstance(err, discord.ext.commands.CommandNotFound):
-        await ctx.send(errorMessage)
+        await ctx.send(err)
     else:
+        await ctx.send("Unknown error.")
         print(ctx.message.content, err)
     
 @bot.event
@@ -53,10 +54,8 @@ async def on_message_delete(message):
 async def on_message(message):
     if message.author == bot.user:
         return
-    if message.content.startwith == "!!":
-        with open('data.json', 'w') as f:
-            json.dump(message.content, f)
-
+    if message.content[:len(prefix)] == prefix:
+        await bot.process_commands(message)
 
 @bot.command()
 async def segítség(ctx):
@@ -85,7 +84,6 @@ async def clear(ctx, amount: int):
 async def ping(ctx):
     await ctx.send('A pingem: {} ms'.format(round(bot.latency * 1000)))
 
-
 """@bot.command(name='ping', aliases=['latency'])
 async def ping(ctx):
     
@@ -99,7 +97,6 @@ async def ping(ctx):
     e.add_field(name='Message Roundtrip:', value=f'`{ping}ms`')
     e.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
     await m.edit(content=None, embed=e)"""
-
 
 @bot.command()
 async def ban(ctx, *, member: discord.Member, reason=None):
@@ -133,7 +130,6 @@ async def embedrule(ctx):
         
         await ctx.send(embed=embed)
 """
-
 
 @bot.command()
 async def sayembed(ctx, *,titleE):
@@ -191,13 +187,10 @@ async def userinfo(ctx, member: discord.Member = None):
 
     embed.add_field(name="ID:", value=member.id)
     embed.add_field(name="Felhasználóneve:", value=member.display_name)
-
     embed.add_field(name="Felhasználó létrehozva:", value=member.created_at.strftime("%a, %#d %B %Y, %I:%M %P UTC"))
     embed.add_field(name="BOT?", value=member.bot)
 
-
     await ctx.send(embed=embed)
-
 
 '''@bot.command()
 async def on_member_join(self, member): 
@@ -290,7 +283,6 @@ async def anime(ctx):
    embedanime = discord.Embed(title=f"Új Anime!", color=discord.Color.dark_purple(), timestamp=ctx.message.created_at)
    embedanime.set_image(url=animejson['link'])
    await ctx.send(embed=embedanime)
-
 
 """@bot.command()
 async def gif(ctx):
@@ -390,12 +382,12 @@ async def _eval(ctx, *, code):
     await pager.start(ctx)
 
 """
+
 def clean_code(content):
     if content.startswith("```") and content.endswith("```"):
         return "\n".join(content.split("\n"))[1:][:-3]
 
     return content
-
 
 async def send_cmd_help(ctx):
     if ctx.invoked_subcommand:
@@ -421,8 +413,6 @@ async def on_command_error(error, ctx):
 		await ctx.bot.send_message(ctx.message.channel, errorMessage)
 """
     
-
-
 """@bot.command()
 async def userinfo(ctx, member: discord.Member):
 
@@ -452,8 +442,6 @@ async def ötlet(ctx, tartalom):
     embed.set_thumbnail(url="http://3200.hu/wp-content/uploads/2017/08/%C3%B6tlet.jpg")
     #embed.set_footer(text=f"{x.year}. {x.month}. {x.day}. {x.hour}:{x.minute}:{x.second}")
     await channel.send(embed=embed)
-
-
 
 @bot.command()
 async def youtube(ctx, *, search):
@@ -510,9 +498,6 @@ async def időjárás(ctx, *, city: str):
         await channel.send("A megadott város nem található.")
     if city is None:
         await ctx.send("Helytelen használat!")
-
-
-
 
 
 bot.run("ODY1Mjg3OTYwMTg5NDY4NzEy.YPB0NQ.sHhUYpg87YbV-Ru-36SA2g28a4M")
