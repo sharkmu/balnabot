@@ -457,4 +457,4 @@ async def időjárás(ctx, *, city: str):
         await ctx.send("Helytelen használat!")
 
 
-bot.run("ODY1Mjg3OTYwMTg5NDY4NzEy.YPB0NQ.sHhUYpg87YbV-Ru-36SA2g28a4M")
+bot.run("TOKEN")
