@@ -33,8 +33,8 @@ async def on_ready():
     print (f'Bejelentkeztünk: {bot.user.name}#{bot.user.discriminator} - {bot.user.id} nevében')
     await bot.change_presence(activity=discord.Game(name='Bálna BOT - BÉTA'))
 
-bot.owner_id = 825005165572259900
-api_key = "d1635ea13b4f9c870cc81fa621d2fc4b"
+bot.owner_id = 1
+api_key = "key"
 base_url = "http://api.openweathermap.org/data/2.5/weather?"
 
 @bot.event
